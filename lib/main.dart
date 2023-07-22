@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
+import 'Screens/SplashScreen/SplashScreen.dart';
 import 'firebase_options.dart';
-import 'Screens/AuthScreens/LoginScreen/LoginScreen.dart';
 //import 'Screens/homeScreen/homeScreen.dart';
 //import 'const/styles.dart';
 
 //global objext for accessing the screen size
 late Size mq;
 void main() {
-  //initialize firebase in project
-  _initializedFirebase();
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  //systeem full screen mode
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  //for setting orientation to portrait only
+  SystemChrome.setPreferredOrientations(
+    [
+      DeviceOrientation.portraitUp,DeviceOrientation.portraitDown
+    ]
+    ).then((value){
+        //initialize firebase in project
+        _initializedFirebase();
+        runApp(const MyApp());
+    });
 }
 
 class MyApp extends StatelessWidget {
@@ -23,7 +34,7 @@ class MyApp extends StatelessWidget {
       title: 'Moiz Chat',
       theme: ThemeData(scaffoldBackgroundColor: Colors.black),
       debugShowCheckedModeBanner: false,
-      home: const LoginScreen(),
+      home: const SPlashScreen(),
     );
   }
 }
