@@ -67,6 +67,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '935932098814',
     projectId: 'moizchat-e7a09',
     storageBucket: 'moizchat-e7a09.appspot.com',
+    androidClientId: '935932098814-36lk8tiea0j40rqvvauv24fovp7usis6.apps.googleusercontent.com',
     iosClientId: '935932098814-701v0evqen2e107jte9bl44pgverjolm.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterApplication1',
   );
@@ -77,6 +78,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '935932098814',
     projectId: 'moizchat-e7a09',
     storageBucket: 'moizchat-e7a09.appspot.com',
+    androidClientId: '935932098814-36lk8tiea0j40rqvvauv24fovp7usis6.apps.googleusercontent.com',
     iosClientId: '935932098814-k3f4nf624pi06oi9ovg0hm0okku0pq8m.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterApplication1.RunnerTests',
   );

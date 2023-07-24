@@ -1,9 +1,11 @@
-
+import 'dart:developer';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/Screens/homeScreen/homeScreen.dart';
 import 'package:flutter_application_1/main.dart';
 
 import '../../../const/const.dart';
+import '../../FirebaseService/FirebaseService.dart';
+import '../AuthScreens/LoginScreen/LoginScreen.dart';
 
 class SPlashScreen extends StatefulWidget {
   const SPlashScreen({super.key});
@@ -23,7 +25,15 @@ class _SPlashScreenState extends State<SPlashScreen> {
         //Exit ful screen
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
         SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen(),));
+        
+        //checking for if user already logIn so go on HomeScreen else Login Screen
+        if (FirebaseServices.auth.currentUser != null) {
+          log('\n_signInWithGoogle : ${FirebaseServices.auth.currentUser}');
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen(),));  
+        } else {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen(),));
+        }
+        
     });
   }
 

@@ -1,7 +1,12 @@
+import 'dart:developer';
+import 'dart:io';
 
+import 'package:flutter_application_1/Screens/Helper/DialogBox.dart';
 import 'package:flutter_application_1/Screens/homeScreen/homeScreen.dart';
 import 'package:flutter_application_1/main.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import '../../../FirebaseService/FirebaseService.dart';
 import '../../../Widgets/TextStylee.dart';
 import '../../../const/const.dart';
 
@@ -27,6 +32,52 @@ class _LoginScreenState extends State<LoginScreen> {
         });
     });
   }
+  _handleGoggleAuthBtnClick(){
+    //for showing progress bar
+    DialogboX.showProgressBar(context);
+    //for hiding rogress bar after showing google signin option
+      Navigator.pop(context);
+    _signInWithGoogle().then((user){
+      if(user != null){
+              log('\nUser : ${user.user}');
+              log('\nadditionalUserInfo : ${user.additionalUserInfo}');
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen(),));
+      }
+    });
+  }
+
+
+  Future<UserCredential?> _signInWithGoogle() async {
+      try {
+        //if a user have a internet exception and to handle a internet exception
+        await InternetAddress.lookup('google.com');
+          // Trigger the authentication flow
+  final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+  // Obtain the auth details from the request
+  final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+  // Create a new credential
+  final credential = GoogleAuthProvider.credential(
+    accessToken: googleAuth?.accessToken,
+    idToken: googleAuth?.idToken,
+  );
+
+  // Once signed in, return the UserCredential
+  return await FirebaseServices.auth.signInWithCredential(credential); 
+      } catch (e) {
+        log('\n_signInWithGoogle : $e');
+        DialogboX.showSnackBar(context, "Some thing went wrong check internet");
+        return null;
+      }
+}
+  /**
+   * signIn out Function
+   * _signout()async{
+   *   await firebaseAuth.instance.signOut();
+   * await GoolgeSignIn().signOut();  
+   * }
+   */
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   elevation: 1
                 ),
                 onPressed: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const HomeScreen(),));
+                  _handleGoggleAuthBtnClick();
                 }, 
                 icon: Image.asset("assets/google.png",height: mq.height*.03,), 
                 label: RichText(
