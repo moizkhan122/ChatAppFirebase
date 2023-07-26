@@ -37,11 +37,23 @@ class _LoginScreenState extends State<LoginScreen> {
     DialogboX.showProgressBar(context);
     //for hiding rogress bar after showing google signin option
       Navigator.pop(context);
-    _signInWithGoogle().then((user){
+    _signInWithGoogle().then((user)async{
       if(user != null){
               log('\nUser : ${user.user}');
               log('\nadditionalUserInfo : ${user.additionalUserInfo}');
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen(),));
+
+              //checking here if user exist so go on homescreen
+              if ((await FirebaseServices.userExist())) {
+                  // ignore: use_build_context_synchronously
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen(),));  
+              } 
+              //if user not exist to first it create user then go on homescreen
+              else {
+                await FirebaseServices.createUser().then((value){
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen(),));
+                });
+              }
+              
       }
     });
   }

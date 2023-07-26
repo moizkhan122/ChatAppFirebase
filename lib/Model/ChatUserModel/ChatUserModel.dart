@@ -1,36 +1,36 @@
 // ignore: file_names
 class ChatuserModel {
-  String? image;
-  String? name;
-  String? about;
-  String? createdAt;
-  String? lastActive;
-  bool? isOnline;
-  String? id;
-  String? pushToken;
-  String? email;
+  late String image;
+  late String name;
+  late String about;
+  late String createdAt;
+  late String lastActive;
+  late bool isOnline;
+  late String id;
+  late String pushToken;
+  late String email;
 
   ChatuserModel(
-      {this.image,
-      this.name,
-      this.about,
-      this.createdAt,
-      this.lastActive,
-      this.isOnline,
-      this.id,
-      this.pushToken,
-      this.email});
+      {required this.image,
+      required this.name,
+      required this.about,
+      required this.createdAt,
+      required this.lastActive,
+      required this.isOnline,
+      required this.id,
+      required this.pushToken,
+      required this.email});
 
   ChatuserModel.fromJson(Map<String, dynamic> json) {
-    image = json['image'];
-    name = json['name'];
-    about = json['about'];
-    createdAt = json['created_at'];
-    lastActive = json['last_active'];
-    isOnline = json['is_online'];
-    id = json['id'];
-    pushToken = json['push_token'];
-    email = json['email'];
+    image = json['image'] ?? '';
+    name = json['name'] ?? '';
+    about = json['about'] ?? '';
+    createdAt = json['created_at'] ?? '';
+    lastActive = json['last_active'] ?? '';
+    isOnline = json['is_online'] ?? '';
+    id = json['id'] ?? '';
+    pushToken = json['push_token'] ?? '';
+    email = json['email'] ?? '';
   }
 
   Map<String, dynamic> toJson() {

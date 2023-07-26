@@ -1,4 +1,5 @@
 
+import 'package:flutter_application_1/Screens/AuthScreens/LoginScreen/LoginScreen.dart';
 import 'package:flutter_application_1/Widgets/TextStylee.dart';
 import 'package:flutter_application_1/Widgets/loadingIndicator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -75,6 +76,8 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () async {
             await FirebaseServices.auth.signOut();
             await GoogleSignIn().signOut();
+            // ignore: use_build_context_synchronously
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen(),));
           },child: const Icon(Icons.logout,color: green,size: 25,),),
     );
   }
