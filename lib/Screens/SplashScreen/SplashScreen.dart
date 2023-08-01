@@ -29,9 +29,9 @@ class _SPlashScreenState extends State<SPlashScreen> {
         //checking for if user already logIn so go on HomeScreen else Login Screen
         if (FirebaseServices.auth.currentUser != null) {
           log('\n_signInWithGoogle : ${FirebaseServices.auth.currentUser}');
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen(),));  
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen(),));  
         } else {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen(),));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen(),));
         }
         
     });
