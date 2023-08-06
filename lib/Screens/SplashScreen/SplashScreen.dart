@@ -24,7 +24,7 @@ class _SPlashScreenState extends State<SPlashScreen> {
     (){ 
         //Exit ful screen
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-        SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+        SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarColor: green));
         
         //checking for if user already logIn so go on HomeScreen else Login Screen
         if (FirebaseServices.auth.currentUser != null) {
