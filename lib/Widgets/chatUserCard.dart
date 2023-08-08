@@ -8,9 +8,10 @@ import 'package:flutter_application_1/main.dart';
 import '../const/const.dart';
 
 class ChatUserCard extends StatefulWidget {
-  const ChatUserCard({super.key, required this.user});
+  const ChatUserCard({super.key, required this.user, required this.onpress});
 
   final ChatuserModel user;
+  final  onpress;
   @override
   State<ChatUserCard> createState() => _ChatUserCardState();
 }
@@ -26,7 +27,7 @@ class _ChatUserCardState extends State<ChatUserCard> {
       ),
       shadowColor: white,
       child: InkWell(
-        onTap: (){},
+        onTap: widget.onpress,
         child: ListTile(
           leading: ClipOval(
             clipBehavior: Clip.antiAlias,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application_1/const/colors.dart';
 import 'Screens/SplashScreen/SplashScreen.dart';
 import 'firebase_options.dart';
 //import 'Screens/homeScreen/homeScreen.dart';
@@ -32,7 +33,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Moiz Chat',
-      theme: ThemeData(scaffoldBackgroundColor: Colors.black),
+      theme: ThemeData(
+      appBarTheme: AppBarTheme(color: green),
+      scaffoldBackgroundColor: Colors.black),
       debugShowCheckedModeBanner: false,
       home: const SPlashScreen(),
     );

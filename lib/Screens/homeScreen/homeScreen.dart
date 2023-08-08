@@ -1,5 +1,6 @@
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_application_1/Screens/ChatScreen/ChatScreen.dart';
 import 'package:flutter_application_1/Widgets/TextStylee.dart';
 import 'package:flutter_application_1/Widgets/loadingIndicator.dart';
 import '../../FirebaseService/FirebaseService.dart';
@@ -109,7 +110,11 @@ class _HomeScreenState extends State<HomeScreen> {
               itemCount:_issearching ? _searcheditems.length :_items.length,
               itemBuilder: (context, index){
                 //return Text('${items[index]}',style: TextStyle(color: white,fontSize: 30),);
-                return ChatUserCard(user:_issearching ? _searcheditems[index] : _items[index],);
+                return ChatUserCard(user:_issearching ? _searcheditems[index] : _items[index],
+                onpress: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) =>  ChatScreen(user: _items[index]),));
+                },
+                );
                 });
                 }else{
                   return Center(child: boldText(title: "No user found",color: white,size: 40.0),);
