@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_application_1/Screens/ChatScreen/ChatScreen.dart';
 import 'package:flutter_application_1/Widgets/TextStylee.dart';
@@ -103,6 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                  // ignore: constant_pattern_never_matches_value_type
                  case ConnectionState.done :
                   final data = snapshot.data?.docs;
+                  log('$data');
                   _items = data?.map((e) => ChatuserModel.fromJson(e.data())).toList() ?? [];
                 if(_items.isNotEmpty){
                   return ListView.builder(

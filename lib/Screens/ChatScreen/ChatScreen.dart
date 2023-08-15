@@ -1,13 +1,10 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_application_1/Model/ChatUserModel/ChatUserModel.dart';
+import 'package:flutter_application_1/Model/MessageModel/MessageModel.dart';
+import 'package:flutter_application_1/Screens/ChatScreen/component/MessageCard.dart';
 import 'package:flutter_application_1/Widgets/TextStylee.dart';
 import 'package:flutter_application_1/const/const.dart';
-
 import '../../FirebaseService/FirebaseService.dart';
-import '../../Widgets/loadingIndicator.dart';
 import '../../main.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -19,6 +16,13 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  
+   // ignore: prefer_final_fields
+   List<MessagesModel> _list = [];
+
+    //for handling message text changed
+   final _textController = TextEditingController();
+  
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -29,7 +33,7 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               Expanded(
                 child: StreamBuilder(
-                stream: FirebaseServices.getALlmessages(),
+                stream: FirebaseServices.getALlmessages(widget.user),
                 builder: (context, snapshot) {
                  switch (snapshot.connectionState) {
                   //if data is loading or comming
@@ -37,7 +41,7 @@ class _ChatScreenState extends State<ChatScreen> {
                    case ConnectionState.waiting :
                    // ignore: constant_pattern_never_matches_value_type
                    case ConnectionState.none :
-                   return Center(child: loadingIndicator(),);
+                   return const Center(child: SizedBox(),);
                         
                    //if data is come
                    // ignore: constant_pattern_never_matches_value_type
@@ -45,16 +49,16 @@ class _ChatScreenState extends State<ChatScreen> {
                    // ignore: constant_pattern_never_matches_value_type
                    case ConnectionState.done :
                     final data = snapshot.data?.docs;
-                    log('data is here : ${jsonEncode(data![0].data())}');
-                    final _items = ["Hi","hello"];
-                    //_items = data?.map((e) => ChatuserModel.fromJson(e.data())).toList() ?? [];
-                  if(_items.isNotEmpty){
+                    //map for all data and collect it and then make a list of it and then store in list variable 
+                  _list = data?.map((e) => MessagesModel.fromJson(e.data())).toList() ?? [];
+                  
+                  if(_list.isNotEmpty){
                     return ListView.builder(
                 physics: const BouncingScrollPhysics(),
-                itemCount:_items.length,
+                itemCount:_list.length,
                 itemBuilder: (context, index){
                   //return Text('${items[index]}',style: TextStyle(color: white,fontSize: 30),);
-                  return boldText(title: _items[index],color: white,size: 30.0);
+                  return  MessageCard(message: _list[index],);
                   });
                   }else{
                     return Center(child: normalText(title: "Say Hiii 🖐️",size: 40.0,color: white),);
@@ -88,6 +92,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     icon: const Icon(Icons.emoji_emotions,color: green,size: 25,)),
                     Expanded(
                       child: TextFormField(
+                        controller: _textController,
                                     style: const TextStyle(color: white),
                                     keyboardType: TextInputType.multiline,
                                     maxLines: null,
@@ -111,7 +116,10 @@ class _ChatScreenState extends State<ChatScreen> {
           CircleAvatar(
                         backgroundColor: green,
                         child: IconButton(
-                          onPressed: (){}, 
+                          onPressed: (){
+                            FirebaseServices.sendingMessage(widget.user, _textController.text);
+                            _textController.text = '';
+                          }, 
                           icon: const Icon(Icons.send,color: white,size: 20,)),
                       ),
         ],
