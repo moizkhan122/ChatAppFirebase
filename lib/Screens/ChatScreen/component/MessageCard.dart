@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter_application_1/FirebaseService/FirebaseService.dart';
 import 'package:flutter_application_1/Model/MessageModel/MessageModel.dart';
+import 'package:flutter_application_1/Screens/Helper/MyTimeFormat.dart';
 import 'package:flutter_application_1/Widgets/TextStylee.dart';
 import 'package:flutter_application_1/const/const.dart';
 import 'package:flutter_application_1/main.dart';
@@ -21,6 +24,12 @@ class _MessageCardState extends State<MessageCard> {
   //sender or another user message
   // ignore: unused_element
   Widget _blueMessage(){
+
+    //update last read message if sender and receiver are different
+    if (widget.message.read.isEmpty) {
+      FirebaseServices.updateReadStatus(widget.message);
+      log('message read successfully');
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -43,8 +52,8 @@ class _MessageCardState extends State<MessageCard> {
               children: [
                 boldText(title: widget.message.msg,size: 20.0),
                 SizedBox(height: mq.height*0.005,),
-                boldText(title: widget.message.sent,size: 15.0,color: Colors.white),
-                const Icon(Icons.done_all_rounded,color: Colors.blue,),
+                boldText(title: MyTimeFormat.getFormatTime(context: context, time: widget.message.sent),size: 15.0,color: Colors.white),
+                // const Icon(Icons.done_all_rounded,color: Colors.blue,),
               ],
             ),),
         ),
@@ -76,7 +85,10 @@ class _MessageCardState extends State<MessageCard> {
               children: [
                 boldText(title: widget.message.msg,size: 20.0),
                 SizedBox(height: mq.height*0.005,),
-                boldText(title: '12:30 PM',size: 15.0,color: Colors.white),
+                boldText(title: MyTimeFormat.getFormatTime(context: context, time: widget.message.sent),size: 15.0,color: Colors.white),
+                
+                //if user watch your message than only blue will be shown
+                if(widget.message.read.isNotEmpty)
                 const Icon(Icons.done_all_rounded,color: Colors.blue,),
 
               ],
