@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_application_1/FirebaseService/FirebaseService.dart';
 import 'package:flutter_application_1/Model/MessageModel/MessageModel.dart';
 import 'package:flutter_application_1/Screens/Helper/MyTimeFormat.dart';
@@ -50,7 +51,16 @@ class _MessageCardState extends State<MessageCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                boldText(title: widget.message.msg,size: 20.0),
+                widget.message.type == Type.text ?
+                boldText(title: widget.message.msg,size: 20.0) : 
+                CachedNetworkImage(
+                    width: mq.height * .055,
+                    height:  mq.height * .055,
+                    imageUrl: widget.message.msg.toString(),
+                    placeholder: (context, url) => const CircularProgressIndicator(color: white,),
+                    errorWidget: (context, url, error) => const Icon(Icons.image,size: 70,),
+                 ),
+                
                 SizedBox(height: mq.height*0.005,),
                 boldText(title: MyTimeFormat.getFormatTime(context: context, time: widget.message.sent),size: 15.0,color: Colors.white),
                 // const Icon(Icons.done_all_rounded,color: Colors.blue,),
@@ -83,7 +93,16 @@ class _MessageCardState extends State<MessageCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                boldText(title: widget.message.msg,size: 20.0),
+                widget.message.type == Type.text ?
+                boldText(title: widget.message.msg,size: 20.0) : 
+                CachedNetworkImage(
+                    imageUrl: widget.message.msg.toString(),
+                    placeholder: (context, url) => const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(color: white,),
+                    ),
+                    errorWidget: (context, url, error) => const Icon(Icons.image,size: 70,),
+                 ),
                 SizedBox(height: mq.height*0.005,),
                 boldText(title: MyTimeFormat.getFormatTime(context: context, time: widget.message.sent),size: 15.0,color: Colors.white),
                 

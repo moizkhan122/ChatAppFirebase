@@ -56,7 +56,10 @@ class _ChatUserCardState extends State<ChatUserCard> {
                ),
           ),
           title: boldText(title: "${widget.user.name}",color: white,size: 20.0),
-          subtitle:  Text(_message != null ? _message!.msg : widget.user.about,maxLines: 1,style:  TextStyle(color: Colors.white.withOpacity(0.9),fontSize: 15,)),
+          subtitle:  Text(
+            _message != null ? 
+            _message!.type == Type.image ? 'image' :
+            _message!.msg : widget.user.about,maxLines: 1,style:  TextStyle(color: Colors.white.withOpacity(0.9),fontSize: 15,)),
           trailing:_message == null ? 
              null
              : _message!.read.isEmpty && _message!.fromId != FirebaseServices.user.uid

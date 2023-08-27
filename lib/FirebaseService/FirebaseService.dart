@@ -72,7 +72,7 @@ class FirebaseServices {
     static Future<void> updateProfilePicture(File file)async{
 
       //getting image file extension
-      final ext = file.path.split('-').last;
+      final ext = file.path.split('.').last;
       log('Extention $ext');
 
       //storage file ref with path and picture jo hogi vo folder ma vo user 
@@ -104,11 +104,12 @@ class FirebaseServices {
          //getting all messages of a specific conversation from firestore database
      static Stream<QuerySnapshot<Map<String, dynamic>>> getALlmessages(ChatuserModel user){
       return firestore.collection('Chats/${getConversationID(user.id)}/Messages')
+      .orderBy('sent', descending: true)
       .snapshots();
     }
 
     //for sending message
-    static Future<void> sendingMessage(ChatuserModel chatuser, String msg)async{
+    static Future<void> sendingMessage(ChatuserModel chatuser, String msg, Type typee)async{
       //message sending time (also used as ID)
       final time = DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -117,7 +118,7 @@ class FirebaseServices {
         toId: chatuser.id, 
         msg: msg, 
         read: '', 
-        type: Type.text, 
+        type: typee, 
         sent: time, 
         fromId: user.uid
         );
@@ -141,5 +142,26 @@ class FirebaseServices {
       .orderBy('sent', descending: true)
       .limit(1)
       .snapshots();
+    }
+
+    //send chat image
+    static Future<void> sendChatImage(ChatuserModel chatuserModel, File file) async {
+      //getting image file extension
+      final ext = file.path.split('.').last;
+
+      //storage file ref with path and picture jo hogi vo folder ma vo user 
+      //ki uid se se hogi uska name takay folder ma pta chalay ka kis user ki pic uska Uid sa
+      final ref =  storage.ref().child
+      ('images/${getConversationID(
+        chatuserModel.id)}/${DateTime.now().millisecondsSinceEpoch}.$ext');
+
+      //uploading image to firebase storage
+      await ref.putFile(file, SettableMetadata(contentType: 'image/$ext')).then((p0){
+        log('Data transfer ${p0.bytesTransferred/1000} kb');
+      });
+
+      //updating image in firetore database
+      final imgUrl = await ref.getDownloadURL();
+      await sendingMessage(chatuserModel, imgUrl, Type.image);
     }
 }
