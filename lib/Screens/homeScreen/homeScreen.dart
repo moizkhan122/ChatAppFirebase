@@ -2,6 +2,7 @@
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_application_1/Screens/ChatScreen/ChatScreen.dart';
 import 'package:flutter_application_1/Widgets/TextStylee.dart';
 import 'package:flutter_application_1/Widgets/loadingIndicator.dart';
@@ -28,6 +29,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
    //
    bool _issearching = false;
+
+   @override
+  void initState() {
+    //for setting user status to active
+    FirebaseServices.updateActiveStatus(true);
+
+    //for active user active status according to life cycle event
+    //resume active/online
+    //pause inActive/offline
+    SystemChannels.lifecycle.setMessageHandler((message){
+      log('message : $message');
+      if (message.toString().contains('resume')) FirebaseServices.updateActiveStatus(true);
+      if (message.toString().contains('pause')) FirebaseServices.updateActiveStatus(false);
+
+      return Future.value(message);
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

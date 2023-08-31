@@ -56,4 +56,34 @@ class MyTimeFormat {
         }
         return 'NA';
       }
+
+      //get last active time of user in chat screen
+    static String getLastActiveTime(
+      {required BuildContext context, required String lastActiveTime})
+      {
+        int i = int.tryParse(lastActiveTime) ?? -1;
+
+        //if time is not available then return below statement
+        if(i == -1) return  'last seen not available'; 
+
+
+         DateTime time = DateTime.fromMillisecondsSinceEpoch(i);
+         DateTime now = DateTime.now();
+
+        String formattedTime = TimeOfDay.fromDateTime(time).format(context);
+        
+        if (
+          time.day == now.day &&
+          time.month == now.month &&
+          time.year == time.year 
+        ) {
+          return 'last seen today at $formattedTime';
+        }
+        if ((now.difference(time).inHours / 24).round() == 1) {
+          return 'last seen yesterday at $formattedTime';
+        }
+
+        String month = _getMonth(time);
+          return 'last seen on ${time.day} $month on  $formattedTime';
+      }
 }

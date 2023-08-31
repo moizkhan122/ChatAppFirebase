@@ -6,6 +6,7 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter_application_1/Model/ChatUserModel/ChatUserModel.dart';
 import 'package:flutter_application_1/Model/MessageModel/MessageModel.dart';
 import 'package:flutter_application_1/Screens/ChatScreen/component/MessageCard.dart';
+import 'package:flutter_application_1/Screens/Helper/MyTimeFormat.dart';
 import 'package:flutter_application_1/Widgets/TextStylee.dart';
 import 'package:flutter_application_1/const/const.dart';
 import 'package:image_picker/image_picker.dart';
@@ -203,7 +204,13 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _appbar(){
     return InkWell(
       onTap: (){},
-      child: Row(
+      child: StreamBuilder(
+        stream: FirebaseServices.getUserInfoForOfOnCheck(widget.user),
+        builder: (context, snapshot) {
+          final data = snapshot.data?.docs;      
+          final items = data?.map((e) => ChatuserModel.fromJson(e.data())).toList() ?? [];
+    
+        return Row(
         children: [
             IconButton(
               //arrow back icon
@@ -218,7 +225,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: CachedNetworkImage(
                     width: mq.height * .055,
                     height:  mq.height * .055,
-                    imageUrl: widget.user.image.toString(),
+                    imageUrl: items.isNotEmpty ? items[0].image : widget.user.image.toString(),
                     placeholder: (context, url) => const CircularProgressIndicator(color: white,),
                     errorWidget: (context, url, error) => const Icon(Icons.error),
                  ),
@@ -230,12 +237,18 @@ class _ChatScreenState extends State<ChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                boldText(title: widget.user.name,color: white,size: 20.0),
+                //user name
+                boldText(title:items.isNotEmpty ? items[0].name :  widget.user.name,color: white,size: 20.0),
                 SizedBox(width: mq.height* .03,),
-                normalText(title: "last seen not available",color: white,size: 15.0)
+                //user online/last active
+                normalText(title: items.isNotEmpty ? items[0].isOnline ? 'Online' 
+                : MyTimeFormat.getLastActiveTime(context: context, lastActiveTime: items[0].lastActive) :
+                MyTimeFormat.getLastActiveTime(context: context, lastActiveTime: widget.user.lastActive) ,
+                color: white,size: 15.0)
               ],)
-        ],),
-    );
+        ],);
+ 
+      },)   );
   }
 }
 

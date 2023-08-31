@@ -164,4 +164,21 @@ class FirebaseServices {
       final imgUrl = await ref.getDownloadURL();
       await sendingMessage(chatuserModel, imgUrl, Type.image);
     }
+
+    //getting user from firestore database for  checking user online ofline status
+    static Stream<QuerySnapshot<Map<String, dynamic>>> getUserInfoForOfOnCheck(ChatuserModel chatUser){
+      return firestore.collection('user')
+      //this line is for only those user get whose id was not login those not show whose id currently loggin
+      .where('id', isEqualTo: chatUser.id)
+      .snapshots();
+    }
+
+    //update active status of user
+    static Future<void> updateActiveStatus(bool isOnline)async{
+      firestore.collection('user')
+      .doc(user.uid).update({
+        'is_online' : isOnline,
+        'last_Active' :DateTime.now().millisecondsSinceEpoch.toString()
+      });
+    }
 }
