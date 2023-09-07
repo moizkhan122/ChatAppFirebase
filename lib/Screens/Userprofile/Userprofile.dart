@@ -169,12 +169,12 @@ class _UserProfileState extends State<UserProfile> {
                       log('image path is : ${image.path}');
                       setState(() {
                         _image = image.path;
-                        
+                      });
+                      
                         //calling here a function of updating a image
                         FirebaseServices.updateProfilePicture(File(_image!));
                         //for hiding bottom sheet
                         Navigator.pop(context);
-                      });
                     } 
                   }, 
                   child: Image.asset("assets/gellery.png",
@@ -192,12 +192,13 @@ class _UserProfileState extends State<UserProfile> {
                       log('image path is : ${image.path}');
                       setState(() {
                         _image = image.path;
+                      });
+                      
                         //calling here a function of updating a image
                         FirebaseServices.updateProfilePicture(File(_image!));
 
                         //for hiding bottom sheet
                         Navigator.pop(context);
-                      });
                     }
                   }, 
                   child: Image.asset("assets/camera.png",

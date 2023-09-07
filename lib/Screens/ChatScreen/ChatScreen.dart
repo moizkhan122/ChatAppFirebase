@@ -12,6 +12,7 @@ import 'package:flutter_application_1/const/const.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../FirebaseService/FirebaseService.dart';
 import '../../main.dart';
+import 'UserProfilePicture/UserProfilePicture.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key, required this.user});
@@ -202,25 +203,28 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _appbar(){
-    return InkWell(
-      onTap: (){},
-      child: StreamBuilder(
-        stream: FirebaseServices.getUserInfoForOfOnCheck(widget.user),
-        builder: (context, snapshot) {
-          final data = snapshot.data?.docs;      
-          final items = data?.map((e) => ChatuserModel.fromJson(e.data())).toList() ?? [];
+    return StreamBuilder(
+      stream: FirebaseServices.getUserInfoForOfOnCheck(widget.user),
+      builder: (context, snapshot) {
+        final data = snapshot.data?.docs;      
+        final items = data?.map((e) => ChatuserModel.fromJson(e.data())).toList() ?? [];
     
-        return Row(
-        children: [
-            IconButton(
-              //arrow back icon
-              onPressed: (){
-                Navigator.pop(context);
-              }, 
-              icon: const Icon(Icons.arrow_back_ios,color: white,size: 20,)),
-            
-            // user profile picture
-            ClipOval(
+      return Row(
+      children: [
+          IconButton(
+            //arrow back icon
+            onPressed: (){
+              Navigator.pop(context);
+            }, 
+            icon: const Icon(Icons.arrow_back_ios,color: white,size: 20,)),
+          
+          // user profile picture
+          InkWell(
+            onTap: (){
+              //for custom Dialog user profile
+              _showUserProfileCustomDialog();
+            },
+            child: ClipOval(
               clipBehavior: Clip.antiAlias,
               child: CachedNetworkImage(
                     width: mq.height * .055,
@@ -230,10 +234,15 @@ class _ChatScreenState extends State<ChatScreen> {
                     errorWidget: (context, url, error) => const Icon(Icons.error),
                  ),
             ),
+          ),
     
-            SizedBox(width: mq.height* .02,),
-            //user name and last seen
-            Column(
+          SizedBox(width: mq.height* .02,),
+          //user name and last seen
+          InkWell(
+            onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfilePicture(user: widget.user),));
+      },
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -245,10 +254,53 @@ class _ChatScreenState extends State<ChatScreen> {
                 : MyTimeFormat.getLastActiveTime(context: context, lastActiveTime: items[0].lastActive) :
                 MyTimeFormat.getLastActiveTime(context: context, lastActiveTime: widget.user.lastActive) ,
                 color: white,size: 15.0)
-              ],)
-        ],);
+              ],),
+          )
+      ],);
  
-      },)   );
+    },);
+  }
+  //////////////////////////
+  /////Custom User profile Dialog
+  Future _showUserProfileCustomDialog(){
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(20.0)), //this right here
+            child: SizedBox(
+              height: 200,
+              child:  Padding(
+                padding: EdgeInsets.all(12.0),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(widget.user.name,style: const TextStyle(fontSize: 25,color: Colors.green),),
+                        ],
+                      ),
+                      InkWell(
+                        onTap: (){
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => UserProfilePicture(user: widget.user),));
+                        },
+                        child: CircleAvatar(
+                          radius: 70,
+                          backgroundImage: NetworkImage(widget.user.image),),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        });
   }
 }
 

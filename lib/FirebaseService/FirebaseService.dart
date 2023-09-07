@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_application_1/Model/ChatUserModel/ChatUserModel.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_application_1/Model/MessageModel/MessageModel.dart';
@@ -20,7 +21,7 @@ class FirebaseServices {
     //to return current uer
     static User get user => auth.currentUser!;
 
-    //for storing sell data
+    //for storing self data
     static late ChatuserModel me;
 
     //check user exist or not
@@ -59,11 +60,13 @@ class FirebaseServices {
 
     //for getting current user info
     static Future<void> getSelfUserInfo()async{
-      await firestore.collection('user').doc(user.uid).get().then((value)async{
-          if ((await firestore.collection('user').doc(user.uid).get()).exists){
-           // me = ChatuserModel.fromJson(user.d);
+      await firestore.collection('user').doc(user.uid).get().then((user)async{
+          if (user.exists){
+            me = ChatuserModel.fromJson(user.data()!);
+            await getFirebaseMessageToken(); 
+          updateActiveStatus(true);
           } else {
-            
+            await createUser().then((value) => getSelfUserInfo());
           }
       });
     }
@@ -178,7 +181,25 @@ class FirebaseServices {
       firestore.collection('user')
       .doc(user.uid).update({
         'is_online' : isOnline,
-        'last_Active' :DateTime.now().millisecondsSinceEpoch.toString()
+        'last_Active' :DateTime.now().millisecondsSinceEpoch.toString(),
+        'push_token' : me.pushToken,
       });
+    }
+
+    //firebase push notification messages
+
+    //for accessing firebase messages (push notification)
+    static FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+
+    //for getting firebase token
+    static Future<void> getFirebaseMessageToken()async{
+        await firebaseMessaging.requestPermission();
+
+        await firebaseMessaging.getToken().then((t){
+          if (t != null) {
+            me.pushToken = t;
+            log('push token : $t');
+          }
+        });
     }
 }

@@ -32,9 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
    @override
   void initState() {
-    //for setting user status to active
-    FirebaseServices.updateActiveStatus(true);
+    super.initState();
 
+    FirebaseServices.getSelfUserInfo();
     //for active user active status according to life cycle event
     //resume active/online
     //pause inActive/offline
@@ -45,7 +45,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
       return Future.value(message);
     });
-    super.initState();
   }
 
   @override
