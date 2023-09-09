@@ -102,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 
               IconButton(
                 onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) =>  UserProfile(userdata: _items[0]),));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) =>  UserProfile(userdata: FirebaseServices.me),));
                 }, 
                 icon: const Icon(Icons.more_vert,color: white,size: 25,))
             ]),

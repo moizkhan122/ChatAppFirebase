@@ -1,8 +1,10 @@
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_application_1/FirebaseService/FirebaseService.dart';
 import 'package:flutter_application_1/Model/MessageModel/MessageModel.dart';
+import 'package:flutter_application_1/Screens/Helper/DialogBox.dart';
 import 'package:flutter_application_1/Screens/Helper/MyTimeFormat.dart';
 import 'package:flutter_application_1/Widgets/TextStylee.dart';
 import 'package:flutter_application_1/const/const.dart';
@@ -19,7 +21,13 @@ class MessageCard extends StatefulWidget {
 class _MessageCardState extends State<MessageCard> {
   @override
   Widget build(BuildContext context) {
-    return FirebaseServices.user.uid == widget.message.fromId ? _greenMessage() : _blueMessage();
+    bool isME = FirebaseServices.user.uid == widget.message.fromId;
+    return  InkWell(
+      onLongPress: () {
+        _showModelBottomSheet(isME);
+      },
+      child:isME ? _greenMessage() : _blueMessage(),
+    );
   }
 
   //sender or another user message
@@ -114,6 +122,124 @@ class _MessageCardState extends State<MessageCard> {
             ),),
         ),
       ],
+    );
+  }
+
+  //model bottom sheet for message detail
+    void _showModelBottomSheet(bool isMe){
+     showModalBottomSheet(
+      backgroundColor: green,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20))),
+      context: context, 
+      builder: (context) {
+        return ListView(
+          shrinkWrap: true,
+          children: [
+            Container(
+              margin: EdgeInsets.symmetric(
+                vertical: mq.height*.015,
+                horizontal: mq.width*.4
+              ),
+              height: 4,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.black
+              ),
+            ),
+            widget.message.type == Type.text ?
+               //Copy
+            _OptionIcon(
+              icons: const Icon(Icons.copy_all_rounded,color: Colors.white,size: 25,), 
+              name: "Copy Text", 
+              onTap: ()async{
+                //for copying a text from dialog box and paste on clipboard
+                await Clipboard.setData(ClipboardData(text: widget.message.msg)).then((value){
+                  //for clossing a dialog box
+                  Navigator.pop(context);
+                  DialogboX.showSnackBar(context, 'Msg Copied');
+                });
+              }) :
+            //Save
+            _OptionIcon(
+              icons: const Icon(Icons.download_done_rounded,color: Colors.white,size: 25,), 
+              name: "Save Image", 
+              onTap: (){}),
+              //seperater or divider
+              if(isMe)
+              Divider(
+                color: Colors.white,
+                endIndent: mq.width * .04,
+                indent: mq.width * .04,
+              ),
+              if(widget.message.type == Type.text && isMe)
+              //Edit
+              _OptionIcon(
+              icons: const Icon(Icons.edit,color: Colors.white,size: 25,), 
+              name: "Edit Message", 
+              onTap: ()async{
+              }),
+              //Delete
+              if(isMe)
+              _OptionIcon(
+              icons: const Icon(Icons.delete_forever,color: Colors.red,size: 25,), 
+              name: "Delete Message", 
+              onTap: (){
+                FirebaseServices.deleteMessageFromChat(widget.message).then((value){
+                  //close model bottom after delete msg
+                  Navigator.pop(context);
+                });
+              }),
+              //seperater or divider
+              Divider(
+                color: Colors.white,
+                endIndent: mq.width * .04,
+                indent: mq.width * .04,
+              ),
+              _OptionIcon(
+              icons: const Icon(Icons.remove_red_eye,color: Colors.white,size: 25,), 
+              name: "Sent At  ${MyTimeFormat.getLastMsgTimeSentRead(
+                context: context, time: widget.message.sent)}", 
+              onTap: (){}),
+              //Read
+              _OptionIcon(
+              icons: const Icon(Icons.remove_red_eye,color: Colors.red,size: 25,), 
+              name: 
+                widget.message.read.isEmpty ?
+                'not seen yet'
+                :"Read At   ${MyTimeFormat.getLastMsgTimeSentRead(
+                context: context, time: widget.message.read)}", 
+              onTap: (){})
+          ],);
+      },);
+  }
+}
+
+//private class for not calling in another class
+class _OptionIcon extends StatelessWidget {
+  const _OptionIcon({required this.icons, required this.name, required this.onTap});
+
+  final Icon icons;
+  final String name;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => onTap(),
+      child: Padding(
+        padding:  EdgeInsets.only(
+          left: mq.width*.05,
+          top: mq.height * .015,
+          bottom: mq.height *.025
+          ),
+        child: Row(
+          children: [
+            icons,
+            Flexible(child: Text('    $name',style: const TextStyle(fontSize: 20,color: Colors.white),))
+          ]),
+      ),
     );
   }
 }

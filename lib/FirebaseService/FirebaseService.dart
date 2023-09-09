@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -7,6 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_application_1/Model/ChatUserModel/ChatUserModel.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_application_1/Model/MessageModel/MessageModel.dart';
+import 'package:http/http.dart' as http;
 
 class FirebaseServices {
 
@@ -127,7 +129,7 @@ class FirebaseServices {
         );
 
         final ref =  firestore.collection('Chats/${getConversationID(chatuser.id)}/Messages');
-        await ref.doc(time).set(message.toJson());
+        await ref.doc(time).set(message.toJson()).then((value) => sendPushNotification(chatuser,typee == Type.text ? msg : 'image'));
     }
 
     //for updating read status when user read our message
@@ -201,5 +203,52 @@ class FirebaseServices {
             log('push token : $t');
           }
         });
+        // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        // log('Got a message whilst in the foreground!');
+        // log('Message data: ${message.data}');
+
+        // if (message.notification != null) {
+        //   log('Message also contained a notification: ${message.notification}');
+        // }
+        // });
+    }
+
+    //sending push notification
+    static Future<void> sendPushNotification(ChatuserModel chatuser, String msg)async{
+
+     try {
+        final body = {
+        'to' : chatuser.pushToken,
+        'notification' : {'title': chatuser.name,
+         'body' : msg,         
+          "android_channel_id": "chats",
+         },
+         "data": {
+          "some_Data" : "user_Id : ${me.id}",
+        },
+      };
+    var res = await http.post(Uri.parse('https://fcm.googleapis.com/fcm/send'),
+     headers: {
+      HttpHeaders.contentTypeHeader : 'application/json',
+      HttpHeaders.authorizationHeader : 'key=AAAA2enmeP4:APA91bGwdBRvsV_KZSeaMi4hJJaqFWzCipKjXOT4UFTpos3GLIoxPOI_Dmyyglx9atd5-7RRu1S0awwes9_8kLNWGPbkwerKqHzaKMIXmLgzwWBfKgzjahFpQkx1qM25n-pKPJpPz_Db'
+     },
+     body: jsonEncode(body));
+    log('Response status: ${res.statusCode}');
+    log('Response body: ${res.body}');
+     } catch (e) {
+       log('PushNotification : $e');
+     }
+    }
+
+    //delete msg on ontap dialog in chat screen
+    static Future<void> deleteMessageFromChat(MessagesModel message)async{
+      await firestore.collection('Chats/${getConversationID(message.toId)}/Messages')
+      .doc(message.sent).
+      delete();
+      
+      // if we want to delete a image from chat
+      if (message.type == Type.image) {
+        await storage.refFromURL(message.msg).delete();  
+      }
     }
 }
