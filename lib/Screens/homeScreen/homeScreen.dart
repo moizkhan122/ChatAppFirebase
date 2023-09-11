@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/Screens/ChatScreen/ChatScreen.dart';
+import 'package:flutter_application_1/Screens/Helper/DialogBox.dart';
 import 'package:flutter_application_1/Widgets/TextStylee.dart';
 import 'package:flutter_application_1/Widgets/loadingIndicator.dart';
 import '../../FirebaseService/FirebaseService.dart';
@@ -106,8 +107,28 @@ class _HomeScreenState extends State<HomeScreen> {
                 }, 
                 icon: const Icon(Icons.more_vert,color: white,size: 25,))
             ]),
+            //get id pf only known users
             body: StreamBuilder(
-              stream: FirebaseServices.getALlUsers(),
+              stream: FirebaseServices.getMyUsersIds(),
+              builder: (context, snapshot) {
+
+             switch (snapshot.connectionState) {
+                //if data is loading or comming
+                 // ignore: constant_pattern_never_matches_value_type
+                 case ConnectionState.waiting :
+                 // ignore: constant_pattern_never_matches_value_type
+                 case ConnectionState.none :
+                 return Center(child: loadingIndicator(),);
+          
+                 //if data is come
+                 // ignore: constant_pattern_never_matches_value_type
+                 case ConnectionState.active :
+                 // ignore: constant_pattern_never_matches_value_type
+                 case ConnectionState.done :
+                return StreamBuilder(
+              stream: FirebaseServices.getALlUsers(
+                snapshot.data?.docs.map((e) => e.id).toList() ?? []
+              ),
               builder: (context, snapshot) {
                switch (snapshot.connectionState) {
                 //if data is loading or comming
@@ -115,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                  case ConnectionState.waiting :
                  // ignore: constant_pattern_never_matches_value_type
                  case ConnectionState.none :
-                 return Center(child: loadingIndicator(),);
+                //  return Center(child: loadingIndicator(),);
           
                  //if data is come
                  // ignore: constant_pattern_never_matches_value_type
@@ -141,9 +162,60 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Center(child: boldText(title: "No user found",color: white,size: 40.0),);
                 }
                }
-              },),
+              },);
+              }
+            },),
+              floatingActionButton: FloatingActionButton(
+                onPressed: (){
+                  _showMessageUpdateDialog();
+                },
+                backgroundColor: Colors.green,
+                child: const Icon(Icons.person,color: Colors.white,),
+                ),
         ),
       ),
     );
+  }
+
+    // Show add user dialog
+    void _showMessageUpdateDialog(){
+    String email ='';
+
+    showDialog(
+      context: context, 
+      builder: (context) =>  AlertDialog(
+        backgroundColor: Colors.green,
+        shape: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+        title: const Row(
+          children: [
+            Icon(Icons.person_2,color: Colors.white,),
+            Text("Add User",style: TextStyle(fontSize: 20,color: Colors.white),)
+          ],
+        ),
+        content: TextFormField(
+          maxLines: null,
+          onChanged: (value) => email = value,
+          decoration: InputDecoration(
+            suffixIcon: const Icon(Icons.email,color: Colors.green,size: 25,),
+            hintText: 'Email',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),),
+        actions: [
+          MaterialButton(onPressed: (){
+            Navigator.pop(context);
+          },child: const Center(child:  Text("Cancel",style: TextStyle(fontSize: 18,color: Colors.white),)),),
+          MaterialButton(
+            onPressed: () async {
+            Navigator.pop(context);
+            if (email.isNotEmpty) {
+             await FirebaseServices.addChatUser(email).then((value){
+             if (!value) {
+                DialogboX.showSnackBar(context, 'User does Not Exist');
+             }
+             }); 
+            }
+          },child: const Center(child:  Text("Add",style: TextStyle(fontSize: 18,color: Colors.white),)),)
+        ],
+        ),
+        );
   }
 }

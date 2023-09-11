@@ -53,10 +53,19 @@ class FirebaseServices {
     }
 
     //getting all users from firestore database
-    static Stream<QuerySnapshot<Map<String, dynamic>>> getALlUsers(){
+    static Stream<QuerySnapshot<Map<String, dynamic>>> getALlUsers(List<String> usersId){
       return firestore.collection('user')
+      .where('id',whereIn: usersId)
       //this line is for only those user get whose id was not login those not show whose id currently loggin
-      .where('id', isNotEqualTo: user.uid)
+      //.where('id', isNotEqualTo: user.uid)
+      .snapshots();
+    }
+
+     //getting ids of known users from firestore database
+    static Stream<QuerySnapshot<Map<String, dynamic>>> getMyUsersIds(){
+      return firestore.collection('user')
+      .doc(user.uid)
+      .collection('my_users')
       .snapshots();
     }
 
@@ -250,5 +259,44 @@ class FirebaseServices {
       if (message.type == Type.image) {
         await storage.refFromURL(message.msg).delete();  
       }
+    }
+
+    //update msg on ontap dialog in chat screen
+    static Future<void> updateMessageFromChat(MessagesModel message,updateMsg)async{
+      await firestore.collection('Chats/${getConversationID(message.toId)}/Messages')
+      .doc(message.sent).
+      update(
+        {
+          'msg' : updateMsg
+        }
+      );
+    }
+
+    //add a chat user for our conversation from dialog box in homeScreen
+    static Future<bool> addChatUser(String email)async{
+      final data = await firestore.collection('user').where('email', isEqualTo: email).get();
+       log('user exist : ${data.docs}');
+      if (data.docs.isNotEmpty && data.docs.first.id != user.uid) {
+        log('user exist : ${data.docs.first.data()}');
+        firestore.collection('user').doc(user.uid)
+        .collection('my_users')
+        .doc(data.docs.first.id)
+        .set({});
+        return true;
+      }else{
+        return false;
+      }
+    }
+
+
+    //for adding a user for my user when first message is send
+    static Future<void> sendFirstMessage(ChatuserModel chatuser, String msg, Type typee)async{
+         firestore.collection('user')
+         .doc(chatuser.id)
+         .collection('my_users')
+         .doc(user.uid)
+         .set({}).then((value){
+          sendingMessage(chatuser, msg, typee);
+         });
     }
 }

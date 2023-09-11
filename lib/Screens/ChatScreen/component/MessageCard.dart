@@ -9,6 +9,7 @@ import 'package:flutter_application_1/Screens/Helper/MyTimeFormat.dart';
 import 'package:flutter_application_1/Widgets/TextStylee.dart';
 import 'package:flutter_application_1/const/const.dart';
 import 'package:flutter_application_1/main.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 
 class MessageCard extends StatefulWidget {
   const MessageCard({super.key, required this.message});
@@ -157,7 +158,7 @@ class _MessageCardState extends State<MessageCard> {
               onTap: ()async{
                 //for copying a text from dialog box and paste on clipboard
                 await Clipboard.setData(ClipboardData(text: widget.message.msg)).then((value){
-                  //for clossing a dialog box
+                  //for closing a dialog box
                   Navigator.pop(context);
                   DialogboX.showSnackBar(context, 'Msg Copied');
                 });
@@ -166,7 +167,19 @@ class _MessageCardState extends State<MessageCard> {
             _OptionIcon(
               icons: const Icon(Icons.download_done_rounded,color: Colors.white,size: 25,), 
               name: "Save Image", 
-              onTap: (){}),
+              onTap: () async {
+                log('Image Url : ${widget.message.msg}');
+                await GallerySaver.saveImage(
+                  widget.message.msg,
+                  albumName: 'Moiz Chat App'
+                  ).then((success) {
+                    Navigator.pop(context);
+                    if (success!=null && success) {
+                      DialogboX.showSnackBar(context, 'Image Saved');
+                    }
+                  });
+              }),
+
               //seperater or divider
               if(isMe)
               Divider(
@@ -180,6 +193,8 @@ class _MessageCardState extends State<MessageCard> {
               icons: const Icon(Icons.edit,color: Colors.white,size: 25,), 
               name: "Edit Message", 
               onTap: ()async{
+                Navigator.pop(context);
+                _showMessageUpdateDialog();
               }),
               //Delete
               if(isMe)
@@ -214,6 +229,36 @@ class _MessageCardState extends State<MessageCard> {
               onTap: (){})
           ],);
       },);
+  }
+  
+  void _showMessageUpdateDialog(){
+    String updateValue = widget.message.msg;
+    showDialog(
+      context: context, 
+      builder: (context) =>  AlertDialog(
+        backgroundColor: Colors.green,
+        title: const Row(
+          children: [
+            Icon(Icons.message,color: Colors.white,),
+            Text("Update Message",style: TextStyle(fontSize: 20,color: Colors.white),)
+          ],
+        ),
+        content: TextFormField(
+          initialValue: updateValue,
+          maxLines: null,
+          onChanged: (value) => updateValue = value,
+          decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),),
+        actions: [
+          MaterialButton(onPressed: (){
+            Navigator.pop(context);
+          },child: const Center(child:  Text("Cancel",style: TextStyle(fontSize: 18,color: Colors.white),)),),
+          MaterialButton(onPressed: (){
+            Navigator.pop(context);
+            FirebaseServices.updateMessageFromChat(widget.message, updateValue);
+          },child: const Center(child:  Text("Update",style: TextStyle(fontSize: 18,color: Colors.white),)),)
+        ],
+        ),
+        );
   }
 }
 
